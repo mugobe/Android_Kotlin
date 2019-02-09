@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "918882054967",
+    "firebase_url": "https://mechat-4fc14.firebaseio.com",
+    "project_id": "mechat-4fc14",
+    "storage_bucket": "mechat-4fc14.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918882054967:android:d019c4f2204bb56a",
+        "android_client_info": {
+          "package_name": "com.example.louiville.mechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "918882054967-n6an93idubdcjrkpoq51ra9q6poe17o2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiWO1O7Z4wjl78--xNy8dLSYTuIsMPp_Y"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
