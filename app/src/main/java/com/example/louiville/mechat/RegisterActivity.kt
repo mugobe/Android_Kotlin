@@ -102,6 +102,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun uploadImageTpFirebase(){
+        if (selectPhotoUri == null) return
     val filename = UUID.randomUUID().toString()
    val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
