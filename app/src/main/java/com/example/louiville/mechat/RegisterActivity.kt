@@ -2,13 +2,18 @@ package com.example.louiville.mechat
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -43,6 +48,9 @@ class RegisterActivity : AppCompatActivity() {
             startActivityForResult(intent, 0)
          }
         }
+
+        var selectPhotoUri: Uri? = null
+
         override fun onActivityResult(requestCode:Int, resultCode: Int, data: Intent?){
              super.onActivityResult(requestCode, resultCode, data)
 
@@ -50,8 +58,15 @@ class RegisterActivity : AppCompatActivity() {
 //                    check if the image was seleted
                 Log.d("Register", "The i mage was selectd")
 
-            }
+//                show selected image in the round conner
 
+                selectPhotoUri = data.data
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectPhotoUri)
+
+                val bitmapDrawable = BitmapDrawable(bitmap)
+                image_picker.setBackgroundDrawable(bitmapDrawable)
+
+            }
     }
 
     private fun performRegistration(){
@@ -76,10 +91,23 @@ class RegisterActivity : AppCompatActivity() {
                 //else if suuccessful
                 Log.d("main", "successfully created uer with uid:")
                 Toast.makeText(this, "successfully created user", Toast.LENGTH_SHORT).show()
+
+//              upload images to firebase
+                uploadImageTpFirebase()
             }
             .addOnFailureListener{
-                Log.d("main", "Please enter corect credentials: ${it.message}")
+                Log.d("Register", "Please enter corect credentials: ${it.message}")
                 Toast.makeText(this, "Failed to login because of wrong input", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun uploadImageTpFirebase(){
+    val filename = UUID.randomUUID().toString()
+   val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
+
+    ref.putFile(selectPhotoUri!!)
+        .addOnSuccessListener {
+            Log.d("Register", "Suscessfully loaded images")
+        }
     }
 }
