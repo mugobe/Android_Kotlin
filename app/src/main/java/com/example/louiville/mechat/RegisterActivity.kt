@@ -11,9 +11,12 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
 import java.util.*
+import kotlin.jvm.internal.Ref
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -49,6 +52,7 @@ class RegisterActivity : AppCompatActivity() {
          }
         }
 
+//    this code helps fetch the image from the fone memeroy
         var selectPhotoUri: Uri? = null
 
         override fun onActivityResult(requestCode:Int, resultCode: Int, data: Intent?){
@@ -63,8 +67,12 @@ class RegisterActivity : AppCompatActivity() {
                 selectPhotoUri = data.data
                 val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectPhotoUri)
 
-                val bitmapDrawable = BitmapDrawable(bitmap)
-                image_picker.setBackgroundDrawable(bitmapDrawable)
+
+                imageSelectCircle.setImageBitmap(bitmap)
+
+                image_picker.alpha = 0f
+//                val bitmapDrawable = BitmapDrawable(bitmap)
+//                image_picker.setBackgroundDrawable(bitmapDrawable)
 
             }
     }
@@ -89,26 +97,61 @@ class RegisterActivity : AppCompatActivity() {
             .addOnCompleteListener {
                 if (!it.isSuccessful) return@addOnCompleteListener
                 //else if suuccessful
-                Log.d("main", "successfully created uer with uid:")
+                Log.d("main", "successfully created user with uid: ${it}")
                 Toast.makeText(this, "successfully created user", Toast.LENGTH_SHORT).show()
 
 //              upload images to firebase
-                uploadImageTpFirebase()
+                uploadImageToFirebase()
             }
             .addOnFailureListener{
                 Log.d("Register", "Please enter corect credentials: ${it.message}")
                 Toast.makeText(this, "Failed to login because of wrong input", Toast.LENGTH_SHORT).show()
             }
     }
-
-    private fun uploadImageTpFirebase(){
+// we upload the photo duing registering
+    private fun uploadImageToFirebase(){
         if (selectPhotoUri == null) return
     val filename = UUID.randomUUID().toString()
    val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
     ref.putFile(selectPhotoUri!!)
         .addOnSuccessListener {
-            Log.d("Register", "Suscessfully loaded images")
+            Log.d("Register", "Suscessfully uploaded images:  ${it.metadata?.path}")
+
+            ref.downloadUrl.addOnSuccessListener {
+                Log.d("Register", "file path : ${it}")
+
+//                save this image to the database plus its user linked
+                saveUserProfileToFirebaseDatabase(it.toString())
+
+            }
+                .addOnFailureListener{
+
+                    Log.d("Register", "Fialed to save image :${it.cause}")
+                }
+
         }
+
+    }
+
+    private fun saveUserProfileToFirebaseDatabase(profileImageUrl:String){
+//       reference the user unique id generated during the firbease authentication protocol
+        val uid = FirebaseAuth.getInstance().uid ?: ""
+
+//        reference the firebase database to which all the user data will be stored
+        val ref =FirebaseDatabase.getInstance().getReference("/users/$uid")
+//create a user from the user class whic consis of the three user fields
+        val user = User(uid, Username_Register.text.toString(), profileImageUrl )
+//do the saving
+        ref.setValue(user)
+            .addOnSuccessListener {
+                Log.d("Register", "fINALLY WE SAVE THE USER TO DATABES")
+            }
+            .addOnFailureListener{
+
+                Log.d("Register", "Fialed to save user :${it.cause}")
+            }
     }
 }
+//user class
+class User(val uid:String, val username: String, val profileImageUrl: String)
