@@ -145,11 +145,18 @@ class RegisterActivity : AppCompatActivity() {
 //do the saving
         ref.setValue(user)
             .addOnSuccessListener {
-                Log.d("Register", "fINALLY WE SAVE THE USER TO DATABES")
+                Log.d("Register", "FINALLY WE SAVED THE USER TO DATABASE")
+
+//          redireting to the list view containg mesages after registration WE DO THIS BY CREATING AN INTENT
+                val intent = Intent(this, MessageListActivity::class.java)
+//                 clear off block staff like forward pages and so
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+
             }
             .addOnFailureListener{
 
-                Log.d("Register", "Fialed to save user :${it.cause}")
+                Log.d("Register", "Failed to save user :${it.cause}")
             }
     }
 }
